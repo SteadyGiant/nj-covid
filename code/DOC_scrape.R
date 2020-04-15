@@ -5,9 +5,7 @@ library(readr)
 library(rvest)
 library(stringr)
 
-URL = "https://njdoc.gov/pages/COVID19Updates.shtml"
-
-src = read_html(URL)
+src = read_html("https://njdoc.gov/pages/COVID19Updates.shtml")
 
 tables = src %>%
   html_nodes(css = ".align-text-top .table-striped") %>%
@@ -30,5 +28,4 @@ data_out = map2_dfr(.x = tables, .y = timestamps,
                     })
 
 datestamp = strftime(timestamps[1], "%Y-%m-%d")
-
 write_csv(data_out, glue("data/DOC/NJ_DOC_COVID-19-Updates_{datestamp}.csv"))
