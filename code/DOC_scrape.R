@@ -11,7 +11,8 @@ suppressPackageStartupMessages({
 
 # Directory where scraped data will be saved. No slash at end.
 WRITE_DIR = "data/DOC"
-src = read_html("https://njdoc.gov/pages/COVID19Updates.shtml")
+# Before 2020-04-20: https://njdoc.gov/pages/COVID19Updates.shtml
+URL = "https://www.state.nj.us/corrections/pages/COVID19Updates.shtml"
 
 
 ##%######################################################%##
@@ -19,6 +20,8 @@ src = read_html("https://njdoc.gov/pages/COVID19Updates.shtml")
 ####                     Cases Data                     ####
 #                                                          #
 ##%######################################################%##
+
+src = read_html(URL)
 
 timestamps = src %>%
   html_nodes(css = ".align-text-top p") %>%
