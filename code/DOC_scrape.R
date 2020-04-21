@@ -69,6 +69,12 @@ rgx_lookahead = function(pat) {
   str_extract(testing_txt, glue("\\d+(?={pat})"))
 }
 
+library(english)
+nums = 1:1000
+nums_english = english(nums) %>% as.character()
+
+english_to_num = function(eng) nums[nums_english == eng]
+
 # A tibble w/ 1 row
 data_testing = tibble(as_of = testing_txt %>%
                         str_extract("\\d+/\\d+/\\d{4}") %>%
@@ -76,7 +82,10 @@ data_testing = tibble(as_of = testing_txt %>%
                       tested   = rgx_lookahead(" inmates"),
                       positive = rgx_lookahead(" positive"),
                       negative = rgx_lookahead(" negative"),
-                      pending  = rgx_lookahead(" pending"))
+                      pending  = testing_txt %>%
+                        str_extract("(?<= )\\S+(?= pending)") %>%
+                        english_to_num() %>%
+                        as.character())
 
 data_testing_date = data_testing$as_of[1]
 
@@ -114,7 +123,10 @@ if (!file.exists(testing_path)) {
   if (latest_date_saved != data_testing_date) {
     bind_rows(old_data_testing, data_testing) %>%
       write_csv(testing_path)
+
+    message(
+      glue("Data successfully scraped and saved for {data_testing_date}."))
   } else {
-    message(glue("There's already summary data saved for {latest_date_saved}."))
+    message(glue("There's already summary data saved for {data_testing_date}."))
   }
 }
