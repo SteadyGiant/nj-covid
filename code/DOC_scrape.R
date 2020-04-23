@@ -72,8 +72,13 @@ rgx_lookahead = function(pat) {
 library(english)
 nums = 1:1000
 nums_english = english(nums) %>% as.character()
-
-english_to_num = function(eng) nums[nums_english == eng]
+english_to_num = function(eng) {
+  if (as.numeric(eng) %in% nums) {
+    eng
+  } else {
+    nums[nums_english == eng]
+  }
+}
 
 # A tibble w/ 1 row
 data_testing = tibble(as_of = testing_txt %>%
@@ -89,6 +94,9 @@ data_testing = tibble(as_of = testing_txt %>%
 
 data_testing_date = data_testing$as_of[1]
 
+if (any(sapply(data_testing, is.na))) {
+  stop("Something went wrong when parsing testing data text.")
+}
 # Testing and case data each have timestamps. They _should_ be equal, but we'll
 # notice if they ever differ.
 if (data_testing_date != datestamp) {
