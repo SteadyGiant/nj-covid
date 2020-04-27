@@ -56,6 +56,9 @@ data_cases =
   rename_all(tolower) %>%
   select(as_of, system, location, everything())
 
+# Fix colnames: `inmate deaths` --> inmate_deaths
+names(data_cases) = gsub(" ", "_", names(data_cases))
+
 
 ##%######################################################%##
 #                                                          #
