@@ -27,7 +27,9 @@ timestamps = src %>%
   html_nodes(css = ".align-text-top p") %>%
   html_text() %>%
   str_extract("\\d+/\\d+/\\d{4} \\d+:\\d+:\\d+ (AM|PM)") %>%
-  as.POSIXct(format = "%m/%d/%Y %I:%M:%S %p")
+  as.POSIXct(format = "%m/%d/%Y %I:%M:%S %p",
+             # Appends timezone to end of each date string
+             tz = "EST", usetz = TRUE)
 
 # Prison and halfway house datasets each have a timestamp. They _should_ be
 # equal, but we'll notice if they ever differ.
@@ -111,7 +113,7 @@ if (data_testing_date != datestamp) {
 ##%######################################################%##
 
 write_csv(data_cases,
-          glue("{WRITE_DIR}/NJ_DOC_COVID-19-Updates_{datestamp}.csv"))
+          glue("{WRITE_DIR}/NJ_DOC_COVID-19-Locations_{datestamp}.csv"))
 
 testing_basename = "NJ_DOC_COVID-19-Summary"
 testing_path = glue("{WRITE_DIR}/Summary/{testing_basename}.csv")
