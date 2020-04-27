@@ -1,5 +1,5 @@
 .Rproj.user
-# handles working directory headaches
+# cron job
 cron.sh
 # cron log
 *.log
