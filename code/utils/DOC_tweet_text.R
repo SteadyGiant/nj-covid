@@ -57,9 +57,9 @@ Data: {DATA_URL}
     locs_old$system == "RESIDENTIAL COMMUNITY RELEASE PROGRAM", ]
 
   cases_prisons   = prisons_new$inmates
-  deaths_prisons  = prisons_new$`inmate deaths`
+  deaths_prisons  = prisons_new$inmate_deaths
   cases_halfway   = halfway_new$inmates
-  deaths_halfway  = halfway_new$`inmate deaths`
+  deaths_halfway  = halfway_new$inmate_deaths
   # Employee cases only reported for prisons/offices, as halfway houses are
   # staffed by non-DOC employees
   cases_employees = prisons_new$employees
@@ -67,9 +67,9 @@ Data: {DATA_URL}
   tested_diff          = tested - test_old$tested
   cases_total_diff     = cases_total - test_old$positive
   cases_prisons_diff   = cases_prisons - prisons_old$inmates
-  deaths_prisons_diff  = deaths_prisons - prisons_old$`inmate deaths`
+  deaths_prisons_diff  = deaths_prisons - prisons_old$inmate_deaths
   cases_halfway_diff   = cases_halfway - halfway_old$inmates
-  deaths_halfway_diff  = deaths_halfway - halfway_old$`inmate deaths`
+  deaths_halfway_diff  = deaths_halfway - halfway_old$inmate_deaths
   cases_employees_diff = cases_employees - prisons_old$employees
 
   tweet_text = glue(TWEET_PLAN)

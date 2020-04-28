@@ -9,9 +9,12 @@ source("code/utils/DOC_tweet_post.R")
 source("code/utils/DOC_tweet_text.R")
 
 # Get summary (testing) data for 2 most recent dates
-testing_data =
-  read_csv("data/DOC/Summary/NJ_DOC_COVID-19-Summary.csv") %>%
-  subset(as_of %in% c(max(.$as_of), max(.$as_of) - 1))
+testing_data = read_csv("data/DOC/Summary/NJ_DOC_COVID-19-Summary.csv")
+# Get 2 most recent dates.
+# NOTE: They don't report data on weekends, so you can't assume data is daily.
+testing_data_tweet = testing_data %>%
+  .[order(.$as_of, decreasing = TRUE), ] %>%  # descending
+  .[1:2, ]
 
 # Get system totals from most recent locations dataset
 locations_data =
@@ -22,6 +25,6 @@ locations_data =
   do.call(rbind, .) %>%
   subset(location == "Totals")
 
-tweet_text = DOC_tweet_text(locations_data, testing_data)
+tweet_text = DOC_tweet_text(locations_data, testing_data_tweet)
 # Send tweet
 DOC_tweet_post(tweet_text)
