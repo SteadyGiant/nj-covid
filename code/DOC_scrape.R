@@ -67,7 +67,8 @@ names(data_cases) = gsub(" ", "_", names(data_cases))
 ##%######################################################%##
 
 testing_txt = src %>%
-  html_nodes(css = "div.standard_font i") %>%
+  # "div.standard_font i" until 2020-04-27 data
+  html_nodes(css = "em") %>%
   html_text()
 
 rgx_lookahead = function(pat) {
