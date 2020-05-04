@@ -10,13 +10,14 @@ suppressPackageStartupMessages({
 })
 
 WRITE_DIR = "data/OAG_JJC"
+DATE_PAT = "\\d+\\/\\d+\\/\\d+"
 
 src = read_html("https://www.nj.gov/oag/jjc/covid19-facilities.html")
 
 up_date =
   html_node(src, ".secondLevelPageTitle strong") %>%
   html_text() %>%
-  str_extract("\\d{2}\\/\\d+\\/\\d{2}") %>%
+  str_extract(DATE_PAT) %>%
   as.POSIXct(format = "%m/%d/%y") %>%
   strftime("%Y-%m-%d")
 
@@ -53,6 +54,10 @@ testing_info = src %>%
   html_nodes("em") %>%
   html_text()
 
+testing_date = testing_info %>%
+  str_extract(DATE_PAT) %>%
+  as.Date("%m/%d/%Y")
+
 pos_neg_pen = src %>%
   html_nodes(
     "tr:nth-child(38) tr td:nth-child(2) strong , tr:nth-child(37) tr td:nth-child(2) strong, tr:nth-child(36) tr td:nth-child(2) strong") %>%
@@ -60,15 +65,14 @@ pos_neg_pen = src %>%
   as.numeric()
 
 testing_data = tibble(
-  as_of = testing_info %>%
-    str_extract("\\d+\\/\\d+\\/\\d+") %>%
-    as.Date("%m/%d/%Y"),
+  as_of = testing_date,
   tested = testing_info %>%
     str_extract("\\d+(?= JJC)"),
   positive = pos_neg_pen[1],
   negative = pos_neg_pen[2],
   pending  = pos_neg_pen[3]
-)
+) %>%
+  mutate_at(vars(tested:pending), as.numeric)
 
 locs_file_path = glue("{WRITE_DIR}/NJ_OAG_JJC_COVID-19_Locations_{up_date}.csv")
 if (file.exists(locs_file_path)) {
@@ -77,13 +81,25 @@ if (file.exists(locs_file_path)) {
   write_csv(locations_data, locs_file_path)
 }
 
+message(
+  glue("Juvenile LOCATION data successfully scraped and saved for {up_date}."))
+
 test_file_path = glue("{WRITE_DIR}/Summary/NJ_OAG_JJC_COVID-19_Summary.csv")
 if (!file.exists(test_file_path)) {
   write_csv(testing_data, test_file_path)
-} else {
-  read_csv(test_file_path) %>%
-    bind_rows(testing_data) %>%
-    write_csv(test_file_path)
 }
 
-message(glue("Juvenile data successfully scraped and saved for {up_date}."))
+testing_data_old = read_csv(
+  test_file_path,
+  col_types = cols(as_of = col_date(), .default = "n"))
+
+if (max(testing_data_old$as_of) == testing_date) {
+  stop("There's already juvenile TESTING data saved for {testing_date}.")
+} else {
+  bind_rows(testing_data_old, testing_data) %>%
+    write_csv(test_file_path)
+
+  message(
+    glue("Juvenile TESTING data successfully scraped and saved for ",
+         "{testing_date}."))
+}
