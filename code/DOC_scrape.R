@@ -75,6 +75,10 @@ rgx_lookahead = function(pat) {
   str_extract(testing_txt, glue("\\d+(?={pat})"))
 }
 
+# rgx_lookbehind = function(pat) {
+#   str_extract(testing_txt, glue("(?<={pat})\\d+"))
+# }
+
 library(english)
 nums = 1:1000
 nums_english = english(nums) %>% as.character()
@@ -93,10 +97,7 @@ data_testing = tibble(as_of = testing_txt %>%
                       tested   = rgx_lookahead(" inmates"),
                       positive = rgx_lookahead(" positive"),
                       negative = rgx_lookahead(" negative"),
-                      pending  = testing_txt %>%
-                        str_extract("(?<= )\\S+(?= pending)") %>%
-                        english_to_num() %>%
-                        as.character())
+                      pending  = rgx_lookahead(" pending"))
 
 data_testing_date = data_testing$as_of[1]
 
