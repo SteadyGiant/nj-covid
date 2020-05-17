@@ -101,14 +101,20 @@ data_testing = tibble(as_of = testing_txt %>%
 
 data_testing_date = data_testing$as_of[1]
 
-if (any(sapply(data_testing, is.na))) {
+# On 5/15, there are several issues:
+#   - 3198 tested, 602 positive, 2596 negative
+#       - # pending isn't reported at all
+#       - On 5/14, the #s reported were 609 tested,	544 positive,	61 negative,
+#         4 pending.
+#   - Datestamp for testing data is 5/14, vs 5/15 for cases data
+if (any(sapply(data_testing[ , 2:4], is.na))) {
   stop("Something went wrong when parsing testing data text.")
 }
 # Testing and case data each have timestamps. They _should_ be equal, but we'll
 # notice if they ever differ.
-if (data_testing_date != datestamp) {
-  stop("Testing and cases data datestamps differ.")
-}
+# if (data_testing_date != datestamp) {
+#   stop("Testing and cases data datestamps differ.")
+# }
 
 
 ##%######################################################%##
@@ -136,12 +142,17 @@ if (!file.exists(testing_path)) {
   latest_date_saved = max(old_data_testing$as_of)
 
   if (latest_date_saved != data_testing_date) {
-    bind_rows(old_data_testing, data_testing) %>%
-      write_csv(testing_path)
-
-    message(
-      glue("Data successfully scraped and saved for {data_testing_date}."))
+    # pass
+  } else if (latest_date_saved == as.Date("2020-05-14")
+             & data_testing_date == as.Date("2020-05-14")) {
+    data_testing_date = as.Date("2020-05-15")
+    data_testing$as_of = data_testing_date
   } else {
     message(glue("There's already summary data saved for {data_testing_date}."))
   }
 }
+
+bind_rows(old_data_testing, data_testing) %>%
+  write_csv(testing_path)
+
+message(glue("Data successfully scraped and saved for {data_testing_date}."))
