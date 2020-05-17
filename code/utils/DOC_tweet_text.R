@@ -8,7 +8,7 @@ DOC_tweet_text = function(locations_data, testing_data) {
     library(rtweet)  # %>%
   })
 
-  DATA_URL = "https://gitlab.com/everetr/nj-covid-19/-/tree/master/data/DOC"
+  DATA_URL = "https://gitlab.com/everetr/nj-covid-19"
 
   # Cannot allow ANY indentation beyond first line
   TWEET_PLAN = "{mdd}
@@ -73,10 +73,6 @@ Data: {DATA_URL}
   cases_employees_diff = cases_employees - prisons_old$employees
 
   tweet_text = glue(TWEET_PLAN)
-  tweet_len = nchar(tweet_text)
-  if (tweet_len > 280) {
-    stop(glue("Tweet text is {tweet_len} characters long."))
-  }
 
   tweet_text
 

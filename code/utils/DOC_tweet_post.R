@@ -7,6 +7,11 @@ DOC_tweet_post = function(tweet_text) {
     library(rtweet)
   })
 
+  tweet_len = nchar(tweet_text)
+  if (tweet_len > 280) {
+    stop(glue("Tweet text is {tweet_len} characters long."))
+  }
+
   APP_NAME = Sys.getenv("NJDOCcovid19_APP_NAME")
 
   token = create_token(
