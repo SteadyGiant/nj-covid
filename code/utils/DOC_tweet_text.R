@@ -6,6 +6,7 @@ DOC_tweet_text = function(locations_data, testing_data) {
     library(glue)
     library(readr)
     library(rtweet)  # %>%
+    library(scales)
   })
 
   DATA_URL = "https://gitlab.com/everetr/nj-covid-19"
@@ -72,8 +73,6 @@ Data: {DATA_URL}
   deaths_halfway_diff  = deaths_halfway - halfway_old$inmate_deaths
   cases_employees_diff = cases_employees - prisons_old$employees
 
-  tweet_text = glue(TWEET_PLAN)
-
-  tweet_text
+  return(glue(TWEET_PLAN))
 
 }

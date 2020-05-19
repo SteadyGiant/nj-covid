@@ -71,8 +71,10 @@ testing_txt = src %>%
   html_nodes(css = "em") %>%
   html_text()
 
+NUM_PAT = "\\b(\\d+,)?\\d+\\b"
+
 rgx_lookahead = function(pat) {
-  str_extract(testing_txt, glue("\\d+(?={pat})"))
+  str_extract(testing_txt, glue("{NUM_PAT}(?={pat})"))
 }
 
 # rgx_lookbehind = function(pat) {
@@ -112,9 +114,9 @@ if (any(sapply(data_testing[ , 2:4], is.na))) {
 }
 # Testing and case data each have timestamps. They _should_ be equal, but we'll
 # notice if they ever differ.
-# if (data_testing_date != datestamp) {
-#   stop("Testing and cases data datestamps differ.")
-# }
+if (data_testing_date != datestamp) {
+  stop("Testing and cases data datestamps differ.")
+}
 
 
 ##%######################################################%##
