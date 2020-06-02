@@ -69,7 +69,8 @@ names(data_cases) = gsub(" ", "_", names(data_cases))
 testing_txt = src %>%
   # "div.standard_font i" until 2020-04-27 data
   html_nodes(css = "em") %>%
-  html_text()
+  html_text() %>%
+  str_squish()
 
 NUM_PAT = "\\b(\\d+,)?\\d+\\b"
 
@@ -92,31 +93,36 @@ english_to_num = function(eng) {
   }
 }
 
-# A tibble w/ 1 row
-data_testing = tibble(as_of = testing_txt %>%
-                        str_extract("\\d+/\\d+/\\d{4}") %>%
-                        as.Date(format = "%m/%d/%Y"),
-                      tested   = rgx_lookahead(" inmates"),
-                      positive = rgx_lookahead(" positive"),
-                      negative = rgx_lookahead(" negative"),
-                      pending  = rgx_lookahead(" pending"))
-
-data_testing_date = data_testing$as_of[1]
-
-# On 5/15, there are several issues:
-#   - 3198 tested, 602 positive, 2596 negative
-#       - # pending isn't reported at all
-#       - On 5/14, the #s reported were 609 tested,	544 positive,	61 negative,
-#         4 pending.
-#   - Datestamp for testing data is 5/14, vs 5/15 for cases data
-if (any(sapply(data_testing[ , 2:4], is.na))) {
-  stop("Something went wrong when parsing testing data text.")
-}
-# Testing and case data each have timestamps. They _should_ be equal, but we'll
-# notice if they ever differ.
-if (data_testing_date != datestamp) {
-  stop("Testing and cases data datestamps differ.")
-}
+# I noticed on 2020-06-02:
+# "As of 5/30/2020 all NJDOC Facilities, RCRP and Assessment Center inmates have
+#  been tested. A number of lab results are still pending."
+# So I'm commenting out the below:
+#
+# # A tibble w/ 1 row
+# data_testing = tibble(as_of = testing_txt %>%
+#                         str_extract("\\d+/\\d+/\\d{4}") %>%
+#                         as.Date(format = "%m/%d/%Y"),
+#                       tested   = rgx_lookahead(" tests"),
+#                       positive = rgx_lookahead(" positive"),
+#                       negative = rgx_lookahead(" negative"),
+#                       pending  = rgx_lookahead(" pending"))
+#
+# data_testing_date = data_testing$as_of[1]
+#
+# # On 5/15, there are several issues:
+# #   - 3198 tested, 602 positive, 2596 negative
+# #       - # pending isn't reported at all
+# #       - On 5/14, the #s reported were 609 tested,	544 positive,	61 negative,
+# #         4 pending.
+# #   - Datestamp for testing data is 5/14, vs 5/15 for cases data
+# if (any(sapply(data_testing[ , 2:4], is.na))) {
+#   stop("Something went wrong when parsing testing data text.")
+# }
+# # Testing and case data each have timestamps. They _should_ be equal, but we'll
+# # notice if they ever differ.
+# if (data_testing_date != datestamp) {
+#   stop("Testing and cases data datestamps differ.")
+# }
 
 
 ##%######################################################%##
@@ -128,33 +134,33 @@ if (data_testing_date != datestamp) {
 write_csv(data_cases,
           glue("{WRITE_DIR}/NJ_DOC_COVID-19-Locations_{datestamp}.csv"))
 
-testing_basename = "NJ_DOC_COVID-19-Summary"
-testing_path = glue("{WRITE_DIR}/Summary/{testing_basename}.csv")
-
-if (!file.exists(testing_path)) {
-  write_csv(data_testing, testing_path)
-} else {
-  old_data_testing = read_csv(testing_path,
-                              col_types = cols(as_of = col_date(),
-                                               tested = col_character(),
-                                               positive = col_character(),
-                                               negative = col_character(),
-                                               pending = col_character()))
-
-  latest_date_saved = max(old_data_testing$as_of)
-
-  if (latest_date_saved != data_testing_date) {
-    # pass
-  } else if (latest_date_saved == as.Date("2020-05-14")
-             & data_testing_date == as.Date("2020-05-14")) {
-    data_testing_date = as.Date("2020-05-15")
-    data_testing$as_of = data_testing_date
-  } else {
-    message(glue("There's already summary data saved for {data_testing_date}."))
-  }
-}
-
-bind_rows(old_data_testing, data_testing) %>%
-  write_csv(testing_path)
-
-message(glue("Data successfully scraped and saved for {data_testing_date}."))
+# testing_basename = "NJ_DOC_COVID-19-Summary"
+# testing_path = glue("{WRITE_DIR}/Summary/{testing_basename}.csv")
+#
+# if (!file.exists(testing_path)) {
+#   write_csv(data_testing, testing_path)
+# } else {
+#   old_data_testing = read_csv(testing_path,
+#                               col_types = cols(as_of = col_date(),
+#                                                tested = col_character(),
+#                                                positive = col_character(),
+#                                                negative = col_character(),
+#                                                pending = col_character()))
+#
+#   latest_date_saved = max(old_data_testing$as_of)
+#
+#   if (latest_date_saved != data_testing_date) {
+#     # pass
+#   } else if (latest_date_saved == as.Date("2020-05-14")
+#              & data_testing_date == as.Date("2020-05-14")) {
+#     data_testing_date = as.Date("2020-05-15")
+#     data_testing$as_of = data_testing_date
+#   } else {
+#     message(glue("There's already summary data saved for {data_testing_date}."))
+#   }
+# }
+#
+# bind_rows(old_data_testing, data_testing) %>%
+#   write_csv(testing_path)
+#
+# message(glue("Data successfully scraped and saved for {data_testing_date}."))
