@@ -2,6 +2,7 @@
 
 suppressPackageStartupMessages({
   library(dplyr)
+  library(english)
   library(glue)
   library(purrr)
   library(readr)
@@ -82,7 +83,6 @@ rgx_lookahead = function(pat) {
 #   str_extract(testing_txt, glue("(?<={pat})\\d+"))
 # }
 
-library(english)
 nums = 1:1000
 nums_english = english(nums) %>% as.character()
 english_to_num = function(eng) {
